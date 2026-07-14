@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Prata - Painel de Controle</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Admin layout overrides */
+        body {
+            background-color: #0b0c10;
+        }
+        .admin-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--bg-card-border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .admin-title h1 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+        }
+        .admin-title p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-val {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .stat-lbl {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 14px;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+        th, td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--bg-card-border);
+            white-space: nowrap;
+        }
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-bronze { background-color: #cd7f32; color: #fff; }
+        .badge-prata { background-color: #c0c0c0; color: #000; }
+        .badge-ouro { background-color: #ffd700; color: #000; }
+        
+        /* Auth Screen */
+        .auth-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            max-width: 380px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== AUTH VIEW ==================== -->
+    <div id="auth-view" class="admin-container">
+        <div class="auth-view">
+            <div class="logo" style="margin-bottom: 30px;">MÉTODO <span>PRATA</span></div>
+            <div class="auth-card">
+                <h2 style="margin-bottom: 20px; font-size: 1.3rem;">Acesso Restrito</h2>
+                <div class="input-container" style="margin-bottom: 20px;">
+                    <input type="password" id="admin-pass" class="numeric-input" placeholder="Senha do Painel" style="text-align: center;">
+                </div>
+                <button class="btn" id="btn-login">Entrar</button>
+                <p id="auth-error" style="color: #ff4a4a; font-size: 0.85rem; margin-top: 12px; display: none;">Senha incorreta. Tente novamente.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DASHBOARD VIEW ==================== -->
+    <div id="dashboard-view" class="admin-container" style="display: none;">
+        <header class="admin-header">
+            <div class="admin-title">
+                <h1>Painel de Controle</h1>
+                <p>Método Prata - Leads e Avaliações de Alunos</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" id="btn-export" style="padding: 10px 18px; font-size: 0.85rem;">Exportar CSV</button>
+                <button class="btn" id="btn-logout" style="padding: 10px 18px; font-size: 0.85rem; background-color: rgba(255, 74, 74, 0.2); color: #ff4a4a; box-shadow: none;">Sair</button>
+            </div>
+        </header>
+
+        <!-- Stats Overview Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val" id="stat-total">0</div>
+                <div class="stat-lbl">Total Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-bronze">0</div>
+                <div class="stat-lbl">Bronze</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-prata">0</div>
+                <div class="stat-lbl">Prata</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-ouro">0</div>
+                <div class="stat-lbl">Ouro</div>
+            </div>
+        </div>
+
+        <!-- Leads Table -->
+        <h2 style="font-size: 1.2rem; text-transform: uppercase; margin-bottom: 15px;">Listagem de Leads</h2>
+        <div class="table-responsive">
+            <table id="leads-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Objetivo</th>
+                        <th>Idade</th>
+                        <th>Sexo</th>
+                        <th>Nível</th>
+                        <th>Frequência</th>
+                        <th>Tempo</th>
+                        <th>Limitações</th>
+                        <th>Peso (kg)</th>
+                        <th>Altura (cm)</th>
+                        <th>Protocolo Recomendado</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-tbody">
+                    <!-- Tr elements generated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+            <button id="btn-clear-db" style="background: none; border: none; color: #ff4a4a; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+                Limpar todos os registros
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simple auth state
+        const correctPassword = "admin123";
+        const authView = document.getElementById('auth-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const btnLogin = document.getElementById('btn-login');
+        const adminPass = document.getElementById('admin-pass');
+        const authError = document.getElementById('auth-error');
+
+        // Check if already authenticated session
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+            showDashboard();
+        }
+
+        btnLogin.addEventListener('click', attemptLogin);
+        adminPass.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') attemptLogin();
+        });
+
+        function attemptLogin() {
+            if (adminPass.value === correctPassword) {
+                sessionStorage.setItem('admin_authenticated', 'true');
+                showDashboard();
+            } else {
+                authError.style.display = 'block';
+                adminPass.value = '';
+            }
+        }
+
+        function showDashboard() {
+            authView.style.display = 'none';
+            dashboardView.style.display = 'block';
+            loadData();
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            sessionStorage.removeItem('admin_authenticated');
+            window.location.reload();
+        });
+
+        // Load and render leads
+        function loadData() {
+            const submissions = JSON.parse(localStorage.getItem('quiz_submissions') || '[]');
+            const tbody = document.getElementById('leads-tbody');
+            tbody.innerHTML = '';
+
+            if (submissions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-secondary);">Nenhum lead registrado ainda.</td></tr>`;
+                updateStats(0, 0, 0, 0);
+                return;
+            }
+
+            // Stats variables
+            let bronze = 0, prata = 0, ouro = 0;
+
+            // Sort from newest to oldest
+            submissions.reverse().forEach(lead => {
+                // Calculate level counts
+                if (lead.level === 'OURO') ouro++;
+                else if (lead.level === 'PRATA') prata++;
+                else bronze++;
+
+                // Format timestamp
+                const dateStr = new Date(lead.timestamp).toLocaleString('pt-BR');
+
+                // Determine badge class
+                let badgeClass = 'badge-bronze';
+                if (lead.level === 'OURO') badgeClass = 'badge-ouro';
+                else if (lead.level === 'PRATA') badgeClass = 'badge-prata';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>${lead.objective || '-'}</td>
+                    <td>${lead.age || '-'}</td>
+                    <td>${lead.sex || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${lead.level || '-'}</span></td>
+                    <td>${lead.frequency || '-'}</td>
+                    <td>${lead.time || '-'}</td>
+                    <td style="color: ${lead.limitations !== 'Não' ? '#ff4a4a' : 'inherit'}">${lead.limitations || '-'}</td>
+                    <td>${lead.weight || '-'}</td>
+                    <td>${lead.height || '-'}</td>
+                    <td style="font-weight: 600;">${lead.recommendedProtocol || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateStats(submissions.length, bronze, prata, ouro);
+        }
+
+        function updateStats(total, bronze, prata, ouro) {
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-bronze').textContent = bronze;
+            document.getElementById('stat-prata').textContent = prata;
+            document.getElementById('stat-ouro').textContent = ouro;
+        }
+
+        // Clear database
+        document.getElementById('btn-clear-db').addEventListener('click', () => {
+            if (confirm("Tem certeza que deseja deletar todos os registros de leads de forma permanente?")) {
+                localStorage.removeItem('quiz_submissions');
+                loadData();
+            }
+        });
+
+        // Export to CSV
+        document.getElementById('btn-export').addEventListener('click', () => {
+            const submissions = JSON.parse(localStorage.getItem('quiz_submissions') || '[]');
+            if (submissions.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            // CSV headers
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Data,Objetivo,Idade,Sexo,Nivel,Frequencia,Tempo Disponivel,Limitacoes,Peso,Altura,Protocolo Recomendado\r\n";
+
+            submissions.forEach(lead => {
+                const dateStr = new Date(lead.timestamp).toLocaleString('pt-BR').replace(/,/g, '');
+                const row = [
+                    `"${dateStr}"`,
+                    `"${lead.objective || ''}"`,
+                    `"${lead.age || ''}"`,
+                    `"${lead.sex || ''}"`,
+                    `"${lead.level || ''}"`,
+                    `"${lead.frequency || ''}"`,
+                    `"${lead.time || ''}"`,
+                    `"${lead.limitations || ''}"`,
+                    `"${lead.weight || ''}"`,
+                    `"${lead.height || ''}"`,
+                    `"${lead.recommendedProtocol || ''}"`
+                ].join(",");
+                csvContent += row + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `metodo_prata_leads_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
