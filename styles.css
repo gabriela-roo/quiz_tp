@@ -22,6 +22,13 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     background-color: var(--bg-dark);
     color: var(--text-primary);
@@ -29,6 +36,9 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 /* Background glow effects */
@@ -267,7 +277,7 @@ a {
 /* Third Fold - Why Método Prata */
 .why-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 32px;
 }
@@ -283,6 +293,11 @@ a {
     font-weight: 600;
     font-size: 0.85rem;
     transition: var(--transition-smooth);
+}
+
+.why-item span {
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .why-item svg {
@@ -545,13 +560,15 @@ a {
 
 .profile-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
 .profile-field {
     display: flex;
     flex-direction: column;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .field-label {
